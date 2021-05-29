@@ -1,6 +1,6 @@
-package client;
+package RMIConnection;
 
-import common.RMIInterface;
+import RMIConnection.RMIInterface;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;

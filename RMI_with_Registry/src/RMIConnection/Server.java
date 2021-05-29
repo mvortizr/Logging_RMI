@@ -1,14 +1,16 @@
-package server;
-import common.RMIInterface;
-import java.rmi.Naming;
+package RMIConnection;
+import java.net.InetAddress;
 import java.io.*;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Server extends UnicastRemoteObject implements RMIInterface {
 
     private File file;
     private String filePath = "archivo.txt";
+    private final int PORT =3232;
 
     public static void main(String[] args) throws IOException {
         (new Server()).initServer();
@@ -20,24 +22,32 @@ public class Server extends UnicastRemoteObject implements RMIInterface {
     public void initServer() throws IOException, RemoteException {
         try {
             System.out.println("Inicializando Servidor...");
-            Naming.rebind("logging", (RMIInterface) this);
-            this.file = new File(this.filePath);
-            this.file.createNewFile();
+            String IPadd = (InetAddress.getLocalHost()).toString();
+            System.out.println("Escuchando en ..." + IPadd +":"+this.PORT);
+            Registry registry = LocateRegistry.createRegistry(this.PORT);
+            registry.bind("logging", (RMIInterface) this);
+            this.createFile();
             System.out.println("Servidor Iniciado");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void writeFile(String text) throws IOException {
+    private void createFile() throws  IOException {
+        this.file = new File(this.filePath);
+        this.file.createNewFile();
+    }
 
-        if ( text == null || text.trim().isEmpty() ) {
+    private void writeFile(String message) throws IOException {
+
+        if ( message == null || message.trim().isEmpty() ) {
             throw new IOException("Mensaje no válido");
         }
 
-        FileWriter writter = new FileWriter(file, true);
-        writter.write(text + "\n" );
-        writter.close();
+        FileWriter writer = new FileWriter(file, true);
+        writer.write(message + "\n" );
+        writer.close();
     }
 
     @Override
@@ -48,7 +58,7 @@ public class Server extends UnicastRemoteObject implements RMIInterface {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "Mensaje guardado con éxito";
+        return "Mensaje guardado en archivo";
     }
 
 }
