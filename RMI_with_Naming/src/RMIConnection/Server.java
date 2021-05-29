@@ -3,6 +3,8 @@ import java.rmi.Naming;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Server extends UnicastRemoteObject implements RMIInterface {
 
@@ -20,34 +22,39 @@ public class Server extends UnicastRemoteObject implements RMIInterface {
         try {
             System.out.println("Inicializando Servidor...");
             Naming.rebind("logging", (RMIInterface) this);
-            this.file = new File(this.filePath);
-            this.file.createNewFile();
+            this.createFile();
             System.out.println("Servidor Iniciado");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void writeFile(String text) throws IOException {
+    private void createFile() throws  IOException {
+        this.file = new File(this.filePath);
+        this.file.createNewFile();
+    }
 
-        if ( text == null || text.trim().isEmpty() ) {
+    private void writeFile(String message) throws IOException {
+
+        if ( message == null || message.trim().isEmpty() ) {
             throw new IOException("Mensaje no válido");
         }
-
-        FileWriter writter = new FileWriter(file, true);
-        writter.write(text + "\n" );
-        writter.close();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime time = LocalDateTime.now();
+        FileWriter writer = new FileWriter(file, true);
+        writer.write(dtf.format(time) + " " + message + "\n" );
+        writer.close();
     }
 
     @Override
-    public String sendMessage(String content) throws RemoteException{
+    public String sendMessage(String message) throws RemoteException{
 
         try {
-            this.writeFile(content);
+            this.writeFile(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "Mensaje guardado con éxito";
+        return "Mensaje guardado en archivo";
     }
 
 }

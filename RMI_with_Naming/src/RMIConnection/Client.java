@@ -10,16 +10,17 @@ import javax.swing.JOptionPane;
 
 public class Client {
 
-    private static RMIInterface look_up;
+    private static RMIInterface conn;
+    private static String instructions =  "¿Qué deseas guardar?. Escribe \"salir\" para salir";
 
     public static void main(String[] args) throws MalformedURLException, RemoteException, NotBoundException {
 
-        look_up = (RMIInterface) Naming.lookup("logging");
+        conn = (RMIInterface) Naming.lookup("logging");
 
         while(true){
-            String txt = JOptionPane.showInputDialog("¿Qué deseas guardar? (Escribe \"salir\" para salir)");
-            if ( txt == null || txt.equals("salir")) return;
-            String response = look_up.sendMessage(txt);
+            String message = JOptionPane.showInputDialog(instructions);
+            if ( message == null || message.equals("salir")) return;
+            String response = conn.sendMessage(message);
             JOptionPane.showMessageDialog(null, response);
         }
     }

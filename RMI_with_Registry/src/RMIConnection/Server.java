@@ -5,6 +5,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Server extends UnicastRemoteObject implements RMIInterface {
 
@@ -44,17 +46,18 @@ public class Server extends UnicastRemoteObject implements RMIInterface {
         if ( message == null || message.trim().isEmpty() ) {
             throw new IOException("Mensaje no válido");
         }
-
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime time = LocalDateTime.now();
         FileWriter writer = new FileWriter(file, true);
-        writer.write(message + "\n" );
+        writer.write(dtf.format(time) + " " + message + "\n" );
         writer.close();
     }
 
     @Override
-    public String sendMessage(String content) throws RemoteException{
+    public String sendMessage(String message) throws RemoteException{
 
         try {
-            this.writeFile(content);
+            this.writeFile(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
